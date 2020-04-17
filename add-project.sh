@@ -30,8 +30,16 @@ done
 
 catalog_pw=$(mktemp catalog.password.XXXX)
 echo "anvils" > "$catalog_pw"
+
+set +e
 rd keys create \
-    --path "acme/anvils/db/catalog.password" --type password --file "$catalog_pw"
+    --path "acme/anvils/db/catalog.password" --type password --file "$catalog_pw" 2> /dev/null ||  \
+    (
+      sleep 20
+      rd keys create \
+          --path "acme/anvils/db/catalog.password" --type password --file "$catalog_pw" 2> /dev/null
+    )
+set -eu
 
 # Fictitious hosts that mascarade as nodes
 RESOURCES=( www{1,2} app{1,2} db1 )
